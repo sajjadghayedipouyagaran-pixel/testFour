@@ -1,1 +1,31 @@
+name: User API Unit Test CI
 
+on:
+  push:
+    branches:
+      - test/unit/user/create
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Newman and Reporter
+        run: npm install -g newman newman-reporter-html
+
+      - name: Run Postman Tests
+        run: |
+          mkdir -p reports
+          newman run coll.json \
+            --environment env.json \
+            --reporters cli,html \
+            --reporter-html-export reports/user-api-report.html
+
+      - name: Upload Test Report as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: postman-user-api-report
+          path: reports/user-api-report.html
